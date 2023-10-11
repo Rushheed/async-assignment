@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch, Async, Callback Assignment</title>
+    <style>
+        #responseText {
+            width: 50%;
+            margin: 2em auto;
+        }
+
+        button {
+            padding: 0.5em;
+            background-color: rgb(17, 3, 68);
+            border-radius: 5px;
+            border: 0;
+            color: white;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="url"> <br>
+    <button id="btn">Download Video</button>
+    <button id="playBtn">Play</button> <br>
+    <div id="responseText"></div>
+    <script>
+        const downloadBtn = document.querySelector('#btn');
+        const playBtn = document.querySelector('#playBtn');
+        const resText = document.querySelector('#responseText');
+        const url = document.querySelector('#url')
+        let videoUrl;
+
+        downloadBtn.addEventListener('click', () => {
+            
+            videoUrl = url.value
+            downloadVideoCallback(videoUrl, (error) => {
+                if (error) {
+                    resText.innerHTML = `<h2>Error downloading video: ${error}</h2>`;
+                } else {
+                    resText.innerHTML = `<h2>Video Downloaded Successfully</h2>`;
+                    playBtn.style.display = 'inline-block'; 
+                }
+            });
+        });
+
+        playBtn.addEventListener('click', () => {
+                playVideo(videoUrl);    
+         });
+
+        function downloadVideoCallback(url, callback) {
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "video.mp4";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    callback(null);
+                })
+                .catch(error => callback(error));
+        }
+
+        function playVideo(url) {
+            const videoPlayer = document.createElement('video');
+            videoPlayer.src = url;
+            videoPlayer.controls = true;
+            videoPlayer.style.width = '100%';
+            resText.innerHTML = ''; // Clear previous messages
+            resText.appendChild(videoPlayer);
+        }
+    </script>
+</body>
+</html>
